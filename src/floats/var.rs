@@ -1,13 +1,19 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::{fmt::Debug, ops::{Add, Div, Mul, Sub}};
 
 use crate::{
     float_ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub},
     Context, Float, FloatComp, FloatLike,
 };
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Var {
     name: &'static str,
+}
+
+impl Debug for Var {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 impl From<&'static str> for Var {

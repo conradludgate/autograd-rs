@@ -13,8 +13,14 @@ impl<F: FloatComp> FloatDivComp for F {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct FloatDiv<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> Debug for FloatDiv<X, Y> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:?} / {:?})", self.0, self.1)
+    }
+}
 
 impl<X: FloatComp, Y: FloatComp> FloatDiv<X, Y> {
     pub fn new(x: X, y: Y) -> Self {
@@ -24,7 +30,7 @@ impl<X: FloatComp, Y: FloatComp> FloatDiv<X, Y> {
 
 impl<X: FloatComp, Y: FloatComp> FloatComp for FloatDiv<X, Y> {
     fn eval(&self, ctx: &Context) -> Float {
-        self.0.eval(ctx) / self.0.eval(ctx)
+        self.0.eval(ctx) / self.1.eval(ctx)
     }
 
     type Diff = FloatDiv<FloatSub<FloatMul<Y, X::Diff>, FloatMul<X, Y::Diff>>, FloatMul<Y, Y>>;

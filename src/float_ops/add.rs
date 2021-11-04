@@ -11,8 +11,14 @@ impl<F: FloatComp> FloatAddComp for F {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct FloatAdd<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> Debug for FloatAdd<X, Y> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:?} + {:?})", self.0, self.1)
+    }
+}
 
 impl<X: FloatComp, Y: FloatComp> FloatAdd<X, Y> {
     pub fn new(x: X, y: Y) -> Self {

@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{Context, Float, FloatComp, floats::var::Var};
 
 pub trait FloatSubComp: FloatComp + Sized {
@@ -10,8 +12,14 @@ impl<F: FloatComp> FloatSubComp for F {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct FloatSub<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> Debug for FloatSub<X, Y> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:?} - {:?})", self.0, self.1)
+    }
+}
 
 impl<X: FloatComp, Y: FloatComp> FloatSub<X, Y> {
     pub fn new(x: X, y: Y) -> Self {

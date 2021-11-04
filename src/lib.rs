@@ -45,10 +45,14 @@ mod tests {
         let x: Var = "x".into();
 
         let y = x * x + x * 2.0 + 1.0;
+        let y_ = y.diff(x);
+
+        println!("{:?}", y);
+        println!("{:?}", y_);
 
         let ctx = Context::new([("x", 4.0)].into_iter().collect());
 
-        // assert_eq!(y.eval(&ctx), 25.0);
-        assert_eq!(y.diff(x).eval(&ctx), 10.0);
+        assert_eq!(y.eval(&ctx), 25.0);
+        assert_eq!(y_.eval(&ctx), 10.0);
     }
 }
