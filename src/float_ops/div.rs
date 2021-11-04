@@ -1,26 +1,39 @@
 use crate::{Context, Float, FloatComp, floats::var::Var};
-use std::fmt::Debug;
+use std::{fmt::Debug, ops::Sub};
 
-#[derive(Debug)]
-pub struct FloatDiv(Box<dyn FloatComp>, Box<dyn FloatComp>);
+use super::{mul::{FloatMul, FloatMulComp}, sub::FloatSub};
 
-impl FloatDiv {
-    pub fn new(x: impl FloatComp, y: impl FloatComp) -> Self {
-        Self(Box::new(x), Box::new(y))
+pub trait FloatDivComp: FloatComp + Sized {
+    fn div<Rhs: FloatComp>(self, rhs: Rhs) -> FloatDiv<Self, Rhs>;
+}
+
+impl<F: FloatComp> FloatDivComp for F {
+    fn div<Rhs: FloatComp>(self, rhs: Rhs) -> FloatDiv<Self, Rhs> {
+        FloatDiv::new(self, rhs)
     }
 }
 
-impl FloatComp for FloatDiv {
+#[derive(Debug, Copy, Clone)]
+pub struct FloatDiv<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> FloatDiv<X, Y> {
+    pub fn new(x: X, y: Y) -> Self {
+        Self(x, y)
+    }
+}
+
+impl<X: FloatComp, Y: FloatComp> FloatComp for FloatDiv<X, Y> {
     fn eval(&self, ctx: &Context) -> Float {
         self.0.eval(ctx) / self.0.eval(ctx)
     }
 
-    fn diff(&self, ctx: &Context, var: Var) -> Float {
-        let x = self.0.eval(ctx);
-        let y = self.1.eval(ctx);
-        let x1 = self.0.diff(ctx, var);
-        let y1 = self.1.diff(ctx, var);
+    type Diff = FloatDiv<FloatSub<FloatMul<Y, X::Diff>, FloatMul<X, Y::Diff>>, FloatMul<Y, Y>>;
+    fn diff(&self, var: Var) -> Self::Diff {
+        let x = self.0;
+        let y = self.1;
+        let x1 = self.0.diff(var);
+        let y1 = self.1.diff(var);
 
-        (y * x1 - x * y1) / (y * y)
+        y.mul(x1).sub(x.mul(y1)).div(y.mul(y))
     }
 }

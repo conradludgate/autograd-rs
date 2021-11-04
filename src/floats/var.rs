@@ -1,8 +1,8 @@
 use std::ops::{Add, Div, Mul, Sub};
 
 use crate::{
-    float_ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, pow::FloatPow, sub::FloatSub},
-    Context, Float, FloatComp, FloatLike, Pow,
+    float_ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub},
+    Context, Float, FloatComp, FloatLike,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -22,7 +22,7 @@ impl FloatLike for Var {}
 macro_rules! impl_float_like {
     ($T:ident) => {
         impl<F: FloatComp> Add<F> for $T {
-            type Output = FloatAdd;
+            type Output = FloatAdd<$T, F>;
 
             fn add(self, rhs: F) -> Self::Output {
                 FloatAdd::new(self, rhs)
@@ -30,7 +30,7 @@ macro_rules! impl_float_like {
         }
 
         impl<F: FloatComp> Sub<F> for $T {
-            type Output = FloatSub;
+            type Output = FloatSub<$T, F>;
 
             fn sub(self, rhs: F) -> Self::Output {
                 FloatSub::new(self, rhs)
@@ -38,44 +38,32 @@ macro_rules! impl_float_like {
         }
 
         impl<F: FloatComp> Mul<F> for $T {
-            type Output = FloatMul;
+            type Output = FloatMul<$T, F>;
 
             fn mul(self, rhs: F) -> Self::Output {
                 FloatMul::new(self, rhs)
             }
         }
-        
+
         impl<F: FloatComp> Div<F> for $T {
-            type Output = FloatDiv;
+            type Output = FloatDiv<$T, F>;
 
             fn div(self, rhs: F) -> Self::Output {
                 FloatDiv::new(self, rhs)
-            }
-        }
-
-        impl<F: FloatComp> Pow<F> for $T {
-            type Output = FloatPow;
-
-            fn pow(self, exp: F) -> Self::Output {
-                FloatPow::new(self, exp)
             }
         }
     };
 }
 
 impl_float_like!(Var);
-impl_float_like!(FloatAdd);
-impl_float_like!(FloatSub);
-impl_float_like!(FloatMul);
-impl_float_like!(FloatDiv);
-impl_float_like!(FloatPow);
 
 impl FloatComp for Var {
     fn eval(&self, ctx: &Context) -> Float {
         ctx.get_val(self.name)
     }
 
-    fn diff(&self, _: &Context, var: Var) -> Float {
+    type Diff = f64;
+    fn diff(&self, var: Var) -> Self::Diff {
         if *self == var { 1.0 } else { 0.0 }
     }
 }

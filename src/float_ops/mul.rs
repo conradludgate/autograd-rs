@@ -1,25 +1,38 @@
 use crate::{Context, Float, FloatComp, floats::var::Var};
 use std::fmt::Debug;
 
-#[derive(Debug)]
-pub struct FloatMul(Box<dyn FloatComp>, Box<dyn FloatComp>);
+use super::add::{FloatAdd, FloatAddComp};
 
-impl FloatMul {
-    pub fn new(x: impl FloatComp, y: impl FloatComp) -> Self {
-        Self(Box::new(x), Box::new(y))
+pub trait FloatMulComp: FloatComp + Sized {
+    fn mul<Rhs: FloatComp>(self, rhs: Rhs) -> FloatMul<Self, Rhs>;
+}
+
+impl<F: FloatComp> FloatMulComp for F {
+    fn mul<Rhs: FloatComp>(self, rhs: Rhs) -> FloatMul<Self, Rhs> {
+        FloatMul::new(self, rhs)
     }
 }
-impl FloatComp for FloatMul {
+
+#[derive(Debug, Copy, Clone)]
+pub struct FloatMul<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> FloatMul<X, Y> {
+    pub fn new(x: X, y: Y) -> Self {
+        Self(x, y)
+    }
+}
+impl<X: FloatComp, Y: FloatComp> FloatComp for FloatMul<X, Y> {
     fn eval(&self, ctx: &Context) -> Float {
         self.0.eval(ctx) * self.0.eval(ctx)
     }
 
-    fn diff(&self, ctx: &Context, var: Var) -> Float {
-        let x = self.0.eval(ctx);
-        let y = self.1.eval(ctx);
-        let x1 = self.0.diff(ctx, var);
-        let y1 = self.1.diff(ctx, var);
+    type Diff = FloatAdd<FloatMul<Y, X::Diff>, FloatMul<X, Y::Diff>>;
+    fn diff(&self, var: Var) -> Self::Diff {
+        let x = self.0;
+        let y = self.1;
+        let x1 = self.0.diff(var);
+        let y1 = self.1.diff(var);
 
-        y * x1 + x * y1
+        y.mul(x1).add(x.mul(y1))
     }
 }

@@ -6,14 +6,7 @@ use std::{
 
 use floats::var::Var;
 
-mod float_ops {
-    pub mod add;
-    pub mod div;
-    pub mod mul;
-    pub mod pow;
-    pub mod sub;
-}
-
+mod float_ops;
 pub mod floats {
     pub mod f64;
     pub mod var;
@@ -34,16 +27,13 @@ impl Context {
     }
 }
 
-pub trait FloatLike: Sized + Mul + Add + Sub + Div + Pow + Copy + FloatComp {}
+pub trait FloatLike: Sized + Mul + Add + Sub + Div + Copy + FloatComp {}
 
-pub trait Pow<Exp = Self> {
-    type Output;
-    fn pow(self, exp: Exp) -> Self::Output;
-}
-
-pub trait FloatComp: Debug + 'static {
+pub trait FloatComp: Copy + Debug + 'static {
     fn eval(&self, ctx: &Context) -> Float;
-    fn diff(&self, ctx: &Context, var: Var) -> Float;
+
+    type Diff: FloatComp;
+    fn diff(&self, var: Var) -> Self::Diff;
 }
 
 #[cfg(test)]
@@ -58,7 +48,7 @@ mod tests {
 
         let ctx = Context::new([("x", 4.0)].into_iter().collect());
 
-        assert_eq!(y.eval(&ctx), 25.0);
-        assert_eq!(y.diff(&ctx, x), 10.0);
+        // assert_eq!(y.eval(&ctx), 25.0);
+        assert_eq!(y.diff(x).eval(&ctx), 10.0);
     }
 }

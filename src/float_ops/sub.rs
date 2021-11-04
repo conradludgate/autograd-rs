@@ -1,20 +1,31 @@
 use crate::{Context, Float, FloatComp, floats::var::Var};
 
-#[derive(Debug)]
-pub struct FloatSub(Box<dyn FloatComp>, Box<dyn FloatComp>);
+pub trait FloatSubComp: FloatComp + Sized {
+    fn sub<Rhs: FloatComp>(self, rhs: Rhs) -> FloatSub<Self, Rhs>;
+}
 
-impl FloatSub {
-    pub fn new(x: impl FloatComp, y: impl FloatComp) -> Self {
-        Self(Box::new(x), Box::new(y))
+impl<F: FloatComp> FloatSubComp for F {
+    fn sub<Rhs: FloatComp>(self, rhs: Rhs) -> FloatSub<Self, Rhs> {
+        FloatSub::new(self, rhs)
     }
 }
 
-impl FloatComp for FloatSub {
+#[derive(Debug, Copy, Clone)]
+pub struct FloatSub<X: FloatComp, Y: FloatComp>(X, Y);
+
+impl<X: FloatComp, Y: FloatComp> FloatSub<X, Y> {
+    pub fn new(x: X, y: Y) -> Self {
+        Self(x, y)
+    }
+}
+
+impl<X: FloatComp, Y: FloatComp> FloatComp for FloatSub<X, Y> {
     fn eval(&self, ctx: &Context) -> Float {
         self.0.eval(ctx) - self.1.eval(ctx)
     }
 
-    fn diff(&self, ctx: &Context, var: Var) -> Float {
-        self.0.diff(ctx, var) - self.1.diff(ctx, var)
+    type Diff = FloatSub<X::Diff, Y::Diff>;
+    fn diff(&self, var: Var) -> Self::Diff {
+        self.0.diff(var).sub(self.1.diff(var))
     }
 }
