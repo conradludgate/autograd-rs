@@ -1,7 +1,5 @@
-use crate::{Context, Float, FloatComp, floats::var::Var};
+use crate::{Context, Float, floats::{FloatComp, var::Var}};
 use std::fmt::Debug;
-
-use super::add::{FloatAdd, FloatAddComp};
 
 pub trait FloatMulComp: FloatComp + Sized {
     fn mul<Rhs: FloatComp>(self, rhs: Rhs) -> FloatMul<Self, Rhs>;
@@ -32,13 +30,13 @@ impl<X: FloatComp, Y: FloatComp> FloatComp for FloatMul<X, Y> {
         self.0.eval(ctx) * self.1.eval(ctx)
     }
 
-    type Diff = FloatAdd<FloatMul<Y, X::Diff>, FloatMul<X, Y::Diff>>;
+    type Diff = impl FloatComp;
     fn diff(&self, var: Var) -> Self::Diff {
         let x = self.0;
         let y = self.1;
         let x1 = self.0.diff(var);
         let y1 = self.1.diff(var);
 
-        y.mul(x1).add(x.mul(y1))
+        y.mul(x1) + x.mul(y1)
     }
 }

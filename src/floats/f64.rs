@@ -1,8 +1,6 @@
-use crate::{Context, FloatComp, FloatLike};
+use crate::{Context};
 
-use super::var::Var;
-
-impl FloatLike for f64 {}
+use super::{FloatComp, var::Var};
 
 impl FloatComp for f64 {
     fn eval(&self, _: &Context) -> f64 {

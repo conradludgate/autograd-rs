@@ -1,16 +1,8 @@
-use std::{
-    collections::HashMap,
-    fmt::Debug,
-    ops::{Add, Div, Mul, Sub},
-};
+#![feature(type_alias_impl_trait)]
 
-use floats::var::Var;
+use std::collections::HashMap;
 
-mod float_ops;
-pub mod floats {
-    pub mod f64;
-    pub mod var;
-}
+pub mod floats;
 
 pub type Float = f64;
 pub struct Context {
@@ -27,18 +19,9 @@ impl Context {
     }
 }
 
-pub trait FloatLike: Sized + Mul + Add + Sub + Div + Copy + FloatComp {}
-
-pub trait FloatComp: Copy + Debug + 'static {
-    fn eval(&self, ctx: &Context) -> Float;
-
-    type Diff: FloatComp;
-    fn diff(&self, var: Var) -> Self::Diff;
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{Context, floats::var::Var, FloatComp};
+    use crate::{Context, floats::{FloatComp, var::Var}};
 
     #[test]
     fn it_works() {

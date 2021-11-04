@@ -1,9 +1,11 @@
 use std::{fmt::Debug, ops::{Add, Div, Mul, Sub}};
 
 use crate::{
-    float_ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub},
-    Context, Float, FloatComp, FloatLike,
+    floats::ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub},
+    Context, Float,
 };
+
+use super::FloatComp;
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Var {
@@ -23,7 +25,6 @@ impl From<&'static str> for Var {
         }
     }
 }
-impl FloatLike for Var {}
 
 macro_rules! impl_float_like {
     ($T:ident) => {

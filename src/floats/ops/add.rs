@@ -1,4 +1,4 @@
-use crate::{Context, Float, FloatComp, floats::var::Var};
+use crate::{Context, Float, floats::{FloatComp, var::Var}};
 use std::fmt::Debug;
 
 pub trait FloatAddComp: FloatComp + Sized {
@@ -31,7 +31,7 @@ impl<X: FloatComp, Y: FloatComp> FloatComp for FloatAdd<X, Y> {
         self.0.eval(ctx) + self.1.eval(ctx)
     }
 
-    type Diff = FloatAdd<X::Diff, Y::Diff>;
+    type Diff = impl FloatComp;
     fn diff(&self, var: Var) -> Self::Diff {
         self.0.diff(var).add(self.1.diff(var))
     }

@@ -1,5 +1,5 @@
 use self::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub};
-use crate::FloatComp;
+use super::FloatComp;
 use std::ops::{Add, Div, Mul, Sub};
 
 pub mod add;

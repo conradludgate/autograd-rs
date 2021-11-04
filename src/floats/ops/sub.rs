@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::{Context, Float, FloatComp, floats::var::Var};
+use crate::{Context, Float, floats::{FloatComp, var::Var}};
 
 pub trait FloatSubComp: FloatComp + Sized {
     fn sub<Rhs: FloatComp>(self, rhs: Rhs) -> FloatSub<Self, Rhs>;
@@ -32,7 +32,7 @@ impl<X: FloatComp, Y: FloatComp> FloatComp for FloatSub<X, Y> {
         self.0.eval(ctx) - self.1.eval(ctx)
     }
 
-    type Diff = FloatSub<X::Diff, Y::Diff>;
+    type Diff = impl FloatComp;
     fn diff(&self, var: Var) -> Self::Diff {
         self.0.diff(var).sub(self.1.diff(var))
     }

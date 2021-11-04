@@ -1,7 +1,7 @@
-use crate::{Context, Float, FloatComp, floats::var::Var};
-use std::{fmt::Debug, ops::Sub};
+use crate::{Context, Float, floats::{FloatComp, var::Var}};
+use std::fmt::Debug;
 
-use super::{mul::{FloatMul, FloatMulComp}, sub::FloatSub};
+use super::mul::FloatMulComp;
 
 pub trait FloatDivComp: FloatComp + Sized {
     fn div<Rhs: FloatComp>(self, rhs: Rhs) -> FloatDiv<Self, Rhs>;
@@ -33,13 +33,13 @@ impl<X: FloatComp, Y: FloatComp> FloatComp for FloatDiv<X, Y> {
         self.0.eval(ctx) / self.1.eval(ctx)
     }
 
-    type Diff = FloatDiv<FloatSub<FloatMul<Y, X::Diff>, FloatMul<X, Y::Diff>>, FloatMul<Y, Y>>;
+    type Diff = impl FloatComp;
     fn diff(&self, var: Var) -> Self::Diff {
         let x = self.0;
         let y = self.1;
         let x1 = self.0.diff(var);
         let y1 = self.1.diff(var);
 
-        y.mul(x1).sub(x.mul(y1)).div(y.mul(y))
+        (y.mul(x1) - x.mul(y1)) / (y.mul(y))
     }
 }
