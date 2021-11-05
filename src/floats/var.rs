@@ -1,4 +1,4 @@
-use std::{fmt::Debug, ops::{Add, Div, Mul, Sub}};
+use std::{fmt::{Debug, Display}, ops::{Add, Div, Mul, Sub}};
 
 use crate::{
     floats::ops::{add::FloatAdd, div::FloatDiv, mul::FloatMul, sub::FloatSub},
@@ -7,12 +7,12 @@ use crate::{
 
 use super::FloatComp;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Var {
     name: &'static str,
 }
 
-impl Debug for Var {
+impl Display for Var {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.name)
     }
@@ -72,5 +72,9 @@ impl FloatComp for Var {
     type Diff = f64;
     fn diff(&self, var: Var) -> Self::Diff {
         if *self == var { 1.0 } else { 0.0 }
+    }
+
+    fn constant(&self) -> Option<Float> {
+        None
     }
 }

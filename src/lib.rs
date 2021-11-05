@@ -30,8 +30,8 @@ mod tests {
         let y = x * x + x * 2.0 + 1.0;
         let y_ = y.diff(x);
 
-        println!("{:?}", y);
-        println!("{:?}", y_);
+        println!("{}", y);
+        println!("{}", y_);
 
         let ctx = Context::new([("x", 4.0)].into_iter().collect());
 
@@ -48,9 +48,9 @@ mod tests {
         let z_x = z.diff(x);
         let z_y = z.diff(y);
 
-        println!("{:?}", z);
-        println!("{:?}", z_x);
-        println!("{:?}", z_y);
+        println!("{}", z);
+        println!("{}", z_x);
+        println!("{}", z_y);
 
         let ctx = Context::new([("x", 4.0), ("y", 3.0)].into_iter().collect());
 

@@ -1,14 +1,18 @@
-use crate::{Context};
+use crate::{Context, Float};
 
 use super::{FloatComp, var::Var};
 
-impl FloatComp for f64 {
-    fn eval(&self, _: &Context) -> f64 {
+impl FloatComp for Float {
+    fn eval(&self, _: &Context) -> Float {
         *self
     }
 
-    type Diff = f64;
-    fn diff(&self, _: Var) -> f64 {
+    type Diff = Float;
+    fn diff(&self, _: Var) -> Float {
         0.0
+    }
+
+    fn constant(&self) -> Option<Float> {
+        Some(*self)
     }
 }
